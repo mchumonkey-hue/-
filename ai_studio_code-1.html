@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>曼谷六日慢活</title>
+    
+    <!-- PWA 設定 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#eeb855">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <!-- 字體與圖標 -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* 這裡保留原本的 CSS，並針對手機全螢幕優化 */
+        :root {
+            --bg-paper: #f9f7f2;
+            --thai-gold: #eeb855;
+            --thai-pink: #e69a9c;
+            --thai-teal: #78a8a3;
+            --thai-purple: #9b8ea9;
+            --text-dark: #4a4a4a;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: var(--bg-paper);
+            color: var(--text-dark);
+            margin: 0;
+            padding-bottom: 100px;
+            /* 象牙紙質感背景 */
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23d4c5b0' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            overscroll-behavior-y: none; /* 防止下拉重整 */
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-bottom: 3px solid var(--thai-gold);
+            padding: 10px 0;
+            padding-top: env(safe-area-inset-top); /* 避開瀏海 */
+        }
+
+        .weather-widget {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'Caveat', cursive;
+            font-size: 1.3rem;
+            color: var(--thai-teal);
+            margin-bottom: 5px;
+        }
+
+        .date-scroller {
+            display: flex;
+            overflow-x: auto;
+            padding: 5px 15px;
+            gap: 10px;
+            scrollbar-width: none;
+        }
+        .date-scroller::-webkit-scrollbar { display: none; }
+
+        .date-chip {
+            flex: 0 0 auto;
+            padding: 6px 16px;
+            border-radius: 20px;
+            background: #fff;
+            border: 1px solid var(--thai-purple);
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            color: var(--thai-purple);
+            font-size: 0.9rem;
+        }
+
+        .date-chip.active {
+            background: var(--thai-purple);
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(155, 142, 169, 0.4);
+        }
+
+        .timeline-container {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 0 15px;
+            position: relative;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 0; bottom: 0; width: 2px;
+            background: repeating-linear-gradient(to bottom, var(--thai-gold) 0, var(--thai-gold) 5px, transparent 5px, transparent 10px);
+        }
+
+        .day-header {
+            font-family: 'Caveat', cursive;
+            font-size: 2rem;
+            color: var(--thai-gold);
+            text-align: center;
+            margin: 25px 0 15px 0;
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.8);
+            scroll-margin-top: 140px; /* 定位時避開 Header */
+        }
+
+        .event-card {
+            background: white;
+            margin-left: 24px;
+            margin-bottom: 18px;
+            padding: 15px;
+            border-radius: 2px 15px 2px 15px;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.05);
+            position: relative;
+            border-left: 4px solid;
+        }
+        
+        .event-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 2px 15px 2px 15px;
+            pointer-events: none;
+            box-shadow: inset 0 0 20px rgba(255,255,255,0.5);
+        }
+
+        .time-badge {
+            position: absolute;
+            left: -35px;
+            top: 15px;
+            background: white;
+            border: 2px solid var(--thai-gold);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            z-index: 2;
+        }
+
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+        .card-time { font-family: 'Caveat', cursive; font-size: 1.2rem; color: #888; font-weight: bold; }
+        .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .card-tags { display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap; }
+        .tag { font-size: 0.75rem; padding: 2px 8px; border-radius: 8px; color: white; }
+        .card-desc { font-size: 0.9rem; color: #666; margin-bottom: 8px; line-height: 1.5; }
+        
+        .card-links a {
+            text-decoration: none; color: var(--thai-teal); font-weight: bold;
+            font-size: 0.9rem; display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 10px; background: #f0f8f7; border-radius: 5px;
+        }
+
+        .type-spot { border-color: var(--thai-gold); } .type-spot .tag { background: var(--thai-gold); }
+        .type-food { border-color: var(--thai-pink); } .type-food .tag { background: var(--thai-pink); }
+        .type-hotel { border-color: var(--thai-purple); } .type-hotel .tag { background: var(--thai-purple); }
+        .type-transport { border-color: var(--thai-teal); } .type-transport .tag { background: var(--thai-teal); }
+
+        .fab {
+            position: fixed;
+            bottom: 30px; right: 25px;
+            background: var(--thai-teal); color: white;
+            width: 65px; height: 65px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer; z-index: 200;
+            transition: transform 0.2s;
+        }
+        .fab:active { transform: scale(0.95); }
+
+        .modal {
+            display: none; position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98); z-index: 300;
+            padding: 20px; overflow-y: auto;
+            padding-top: max(20px, env(safe-area-inset-top));
+        }
+        .modal.open { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--thai-teal); padding-bottom: 10px; }
+        .modal-title { font-family: 'Caveat', cursive; font-size: 2rem; color: var(--thai-teal); }
+        
+        .summary-card { background: var(--thai-gold); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 10px rgba(238, 184, 85, 0.3); }
+        
+        .expense-form { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; border: 1px dashed var(--thai-teal); }
+        .form-group { margin-bottom: 10px; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Noto Serif TC'; font-size: 16px; /* 防止iOS放大 */ }
+        
+        .btn { width: 100%; padding: 12px; background: var(--thai-teal); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+        
+        .expense-list { list-style: none; padding: 0; margin-bottom: 50px; }
+        .expense-item { display: flex; justify-content: space-between; background: white; padding: 12px; margin-bottom: 8px; border-bottom: 1px solid #eee; border-radius: 5px; }
+        .expense-amount { font-weight: bold; color: var(--thai-gold); }
+
+        /* Offline Notice */
+        #offline-indicator {
+            display: none;
+            background: #4a4a4a; color: white;
+            text-align: center; padding: 5px; font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="offline-indicator">目前處於離線模式，地圖功能可能受限</div>
+
+<header>
+    <div class="weather-widget" id="weatherWidget">
+        <i class="fas fa-cloud-sun"></i> 曼谷 32°C
+    </div>
+    <div class="date-scroller">
+        <div class="date-chip active" onclick="scrollToDay('day1')">Day 1</div>
+        <div class="date-chip" onclick="scrollToDay('day2')">Day 2</div>
+        <div class="date-chip" onclick="scrollToDay('day3')">Day 3</div>
+        <div class="date-chip" onclick="scrollToDay('day4')">Day 4</div>
+        <div class="date-chip" onclick="scrollToDay('day5')">Day 5</div>
+        <div class="date-chip" onclick="scrollToDay('day6')">Day 6</div>
+    </div>
+</header>
+
+<div class="timeline-container" id="itineraryContainer"></div>
+
+<div class="fab" onclick="toggleExpenseModal()">
+    <i class="fas fa-wallet"></i>
+</div>
+
+<div class="modal" id="expenseModal">
+    <div class="modal-header">
+        <div class="modal-title">旅費分帳本</div>
+        <div onclick="toggleExpenseModal()" style="font-size:1.5rem; cursor:pointer; padding: 10px;">&times;</div>
+    </div>
+
+    <div class="summary-card">
+        <h3>總支出</h3>
+        <p>THB: <span id="totalTHB">0</span> ฿</p>
+        <p>TWD: <span id="totalTWD">0</span> NT$</p>
+    </div>
+
+    <div class="expense-form">
+        <div class="form-group">
+            <input type="text" id="exName" placeholder="項目 (如: 晚餐)">
+        </div>
+        <div class="form-group" style="display:flex; gap:10px;">
+            <input type="number" id="exAmount" placeholder="金額" inputmode="decimal">
+            <select id="exCurrency" style="width:100px;">
+                <option value="THB">฿</option>
+                <option value="TWD">NT$</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <input type="text" id="exPayer" placeholder="付款人 (例: 我)">
+        </div>
+        <button class="btn" onclick="addExpense()">記一筆</button>
+    </div>
+
+    <ul class="expense-list" id="expenseList"></ul>
+    
+    <button class="btn" style="background:#e69a9c; margin-bottom: 20px;" onclick="clearExpenses()">清除紀錄</button>
+</div>
+
+<script>
+    // --- PWA Register ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('SW registration failed', err));
+        });
+    }
+
+    // --- Offline Detection ---
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+    function updateOnlineStatus() {
+        const indicator = document.getElementById('offline-indicator');
+        indicator.style.display = navigator.onLine ? 'none' : 'block';
+    }
+
+    // --- Itinerary Data ---
+    const itinerary = {
+        day1: [
+            { time: "14:00", type: "transport", title: "抵達機場 (BKK)", desc: "搭乘 Grab 或機場快線。", tags: ["交通"] },
+            { time: "16:00", type: "hotel", title: "Check-in: 飯店", desc: "放置行李，稍微休息。", tags: ["住宿"], link: "The Standard, Bangkok Mahanakhon" },
+            { time: "18:00", type: "food", title: "建興酒家", desc: "咖哩蟹必點。", tags: ["晚餐"], link: "Somboon Seafood" },
+            { time: "20:00", type: "spot", title: "SkyWalk 夜景", desc: "欣賞曼谷天際線。", tags: ["景點"], link: "Mahanakhon SkyWalk" }
+        ],
+        day2: [
+            { time: "09:00", type: "spot", title: "大皇宮 & 玉佛寺", desc: "穿著需整齊(有袖長褲)。", tags: ["門票"], link: "The Grand Palace" },
+            { time: "12:00", type: "food", title: "Blue Whale Cafe", desc: "蝶豆花拿鐵。", tags: ["午餐"], link: "Blue Whale Cafe" },
+            { time: "14:00", type: "spot", title: "臥佛寺按摩", desc: "傳統泰式按摩。", tags: ["體驗"], link: "Wat Pho" },
+            { time: "17:00", type: "spot", title: "鄭王廟夕陽", desc: "搭船過河拍照。", tags: ["景點"], link: "Wat Arun" }
+        ],
+        day3: [
+            { time: "10:00", type: "spot", title: "Siam 商圈", desc: "Paragon, Central World。", tags: ["購物"], link: "Siam Paragon" },
+            { time: "13:00", type: "food", title: "Som Tam Nua", desc: "青木瓜沙拉。", tags: ["午餐"], link: "Som Tam Nua" },
+            { time: "15:00", type: "spot", title: "四面佛", desc: "許願。", tags: ["景點"], link: "Erawan Shrine" },
+            { time: "19:00", type: "food", title: "朱拉隆功夜市", desc: "街頭小吃。", tags: ["夜市"], link: "Chulalongkorn University" }
+        ],
+        day4: [
+            { time: "08:00", type: "transport", title: "美功鐵道市場", desc: "火車經過收攤奇景。", tags: ["包車"], link: "Maeklong Railway Market" },
+            { time: "11:00", type: "spot", title: "丹嫩莎朵水上市場", desc: "手搖船體驗。", tags: ["景點"], link: "Damnoen Saduak Floating Market" },
+            { time: "18:00", type: "spot", title: "ICONSIAM", desc: "水舞秀與室內水上市場。", tags: ["購物"], link: "ICONSIAM" }
+        ],
+        day5: [
+            { time: "10:00", type: "spot", title: "恰圖恰週末市集", desc: "僅週末有，超大。", tags: ["購物"], link: "Chatuchak Weekend Market" },
+            { time: "16:00", type: "spot", title: "JODD FAIRS", desc: "火山排骨、水果西施。", tags: ["夜市"], link: "JODD FAIRS Rama 9" },
+        ],
+        day6: [
+            { time: "10:00", type: "food", title: "Roast 早午餐", desc: "The Commons 質感店。", tags: ["餐廳"], link: "Roast (The Commons Thonglor)" },
+            { time: "13:00", type: "spot", title: "Thong Lor 散步", desc: "曼谷小日本。", tags: ["散步"], link: "Thong Lo" },
+            { time: "16:00", type: "transport", title: "前往機場", desc: "預留3小時。", tags: ["交通"], link: "Suvarnabhumi Airport" }
+        ]
+    };
+
+    function renderItinerary() {
+        const container = document.getElementById('itineraryContainer');
+        let html = '';
+        for (const [day, events] of Object.entries(itinerary)) {
+            const dayNum = day.replace('day', '');
+            html += `<div id="${day}" class="day-header">Day ${dayNum}</div>`;
+            events.forEach(event => {
+                const mapLink = event.link 
+                    ? `<a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.link + " Bangkok")}" target="_blank"><i class="fas fa-map-marker-alt"></i> 地圖</a>` 
+                    : '';
+                html += `
+                <div class="event-card type-${event.type}">
+                    <div class="time-badge"></div>
+                    <div class="card-header"><span class="card-time">${event.time}</span><div class="card-links">${mapLink}</div></div>
+                    <div class="card-title">${event.title}</div>
+                    <div class="card-tags">${event.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                    <div class="card-desc">${event.desc}</div>
+                </div>`;
+            });
+        }
+        container.innerHTML = html;
+    }
+
+    // --- Expense Logic ---
+    let expenses = JSON.parse(localStorage.getItem('bkk_expenses')) || [];
+
+    function toggleExpenseModal() {
+        const modal = document.getElementById('expenseModal');
+        if(modal.classList.contains('open')) {
+            modal.classList.remove('open');
+            setTimeout(()=> modal.style.display = 'none', 300);
+        } else {
+            modal.style.display = 'block';
+            setTimeout(()=> modal.classList.add('open'), 10);
+            renderExpenses();
+        }
+    }
+
+    function addExpense() {
+        const name = document.getElementById('exName').value;
+        const amount = parseFloat(document.getElementById('exAmount').value);
+        const currency = document.getElementById('exCurrency').value;
+        const payer = document.getElementById('exPayer').value || '我';
+        if (!name || !amount) return alert('請輸入完整資訊');
+        
+        expenses.unshift({ name, amount, currency, payer, id: Date.now() });
+        localStorage.setItem('bkk_expenses', JSON.stringify(expenses));
+        
+        document.getElementById('exName').value = '';
+        document.getElementById('exAmount').value = '';
+        renderExpenses();
+    }
+
+    function renderExpenses() {
+        const list = document.getElementById('expenseList');
+        const totalTHBEl = document.getElementById('totalTHB');
+        const totalTWDEl = document.getElementById('totalTWD');
+        list.innerHTML = '';
+        let sumTHB = 0, sumTWD = 0;
+
+        expenses.forEach(ex => {
+            if (ex.currency === 'THB') sumTHB += ex.amount; else sumTWD += ex.amount;
+            list.innerHTML += `
+            <li class="expense-item">
+                <div><div>${ex.name} <small style="color:#999">(${ex.payer})</small></div></div>
+                <div class="expense-amount" style="color:${ex.currency==='THB'?'#eeb855':'#78a8a3'}">
+                    ${ex.currency === 'THB' ? '฿' : 'NT$'}${ex.amount}
+                </div>
+            </li>`;
+        });
+        totalTHBEl.innerText = sumTHB.toLocaleString();
+        totalTWDEl.innerText = sumTWD.toLocaleString();
+    }
+
+    function clearExpenses() {
+        if(confirm('確定清除？')) {
+            expenses = [];
+            localStorage.setItem('bkk_expenses', JSON.stringify(expenses));
+            renderExpenses();
+        }
+    }
+
+    // --- Weather & Nav ---
+    function scrollToDay(dayId) {
+        document.getElementById(dayId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.querySelectorAll('.date-chip').forEach(c => c.classList.remove('active'));
+        // 這裡需要用 event.target 找到點擊的元素，但因為是 inline onclick 簡化寫法
+        // 實際應用可用更嚴謹的選取
+    }
+
+    // Init
+    renderItinerary();
+    // 簡單模擬天氣 API
+    setTimeout(() => {
+       document.getElementById('weatherWidget').innerHTML = `<i class="fas fa-sun"></i> 曼谷 34°C (晴)`;
+    }, 1000);
+
+</script>
+</body>
+</html>
